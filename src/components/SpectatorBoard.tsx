@@ -17,12 +17,21 @@ export function SpectatorBoard({ gameState, username, cellSize = 15 }: Spectator
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Get computed CSS variables
+    const styles = getComputedStyle(document.documentElement);
+    const gameGrid = `hsl(${styles.getPropertyValue('--game-grid')})`;
+    const borderColor = `hsl(${styles.getPropertyValue('--border')})`;
+    const foodColor = `hsl(${styles.getPropertyValue('--food')})`;
+    const foodGlow = `hsl(${styles.getPropertyValue('--food-glow')})`;
+    const spectatorSnake = `hsl(${styles.getPropertyValue('--spectator-snake')})`;
+
     // Clear canvas
-    ctx.fillStyle = 'hsl(var(--game-grid))';
+    ctx.fillStyle = gameGrid;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw grid lines (subtle)
-    ctx.strokeStyle = 'hsl(var(--border) / 0.3)';
+    const borderHSL = styles.getPropertyValue('--border').trim();
+    ctx.strokeStyle = `hsl(${borderHSL} / 0.3)`;
     ctx.lineWidth = 0.3;
     for (let i = 0; i <= gameState.gridSize; i++) {
       ctx.beginPath();
@@ -39,8 +48,8 @@ export function SpectatorBoard({ gameState, username, cellSize = 15 }: Spectator
     // Draw food
     const food = gameState.food;
     ctx.shadowBlur = 8;
-    ctx.shadowColor = 'hsl(var(--food-glow))';
-    ctx.fillStyle = 'hsl(var(--food))';
+    ctx.shadowColor = foodGlow;
+    ctx.fillStyle = foodColor;
     ctx.fillRect(
       food.x * cellSize + 1,
       food.y * cellSize + 1,
@@ -50,10 +59,11 @@ export function SpectatorBoard({ gameState, username, cellSize = 15 }: Spectator
 
     // Draw snake (spectator color)
     ctx.shadowBlur = 6;
-    ctx.shadowColor = 'hsl(var(--spectator-snake))';
+    ctx.shadowColor = spectatorSnake;
     gameState.snake.forEach((segment: Position, index: number) => {
       const opacity = 1 - (index / gameState.snake.length) * 0.3;
-      ctx.fillStyle = `hsl(var(--spectator-snake) / ${opacity})`;
+      const spectatorSnakeHSL = styles.getPropertyValue('--spectator-snake').trim();
+      ctx.fillStyle = `hsl(${spectatorSnakeHSL} / ${opacity})`;
       ctx.fillRect(
         segment.x * cellSize + 1,
         segment.y * cellSize + 1,

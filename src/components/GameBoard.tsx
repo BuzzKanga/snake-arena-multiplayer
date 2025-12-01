@@ -16,12 +16,21 @@ export function GameBoard({ gameState, cellSize = 20 }: GameBoardProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Get computed CSS variables
+    const styles = getComputedStyle(document.documentElement);
+    const gameGrid = `hsl(${styles.getPropertyValue('--game-grid')})`;
+    const borderColor = `hsl(${styles.getPropertyValue('--border')})`;
+    const foodColor = `hsl(${styles.getPropertyValue('--food')})`;
+    const foodGlow = `hsl(${styles.getPropertyValue('--food-glow')})`;
+    const snakeBody = `hsl(${styles.getPropertyValue('--snake-body')})`;
+    const snakeGlow = `hsl(${styles.getPropertyValue('--snake-glow')})`;
+
     // Clear canvas
-    ctx.fillStyle = 'hsl(var(--game-grid))';
+    ctx.fillStyle = gameGrid;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw grid lines
-    ctx.strokeStyle = 'hsl(var(--border))';
+    ctx.strokeStyle = borderColor;
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= gameState.gridSize; i++) {
       ctx.beginPath();
@@ -38,8 +47,8 @@ export function GameBoard({ gameState, cellSize = 20 }: GameBoardProps) {
     // Draw food with glow
     const food = gameState.food;
     ctx.shadowBlur = 15;
-    ctx.shadowColor = 'hsl(var(--food-glow))';
-    ctx.fillStyle = 'hsl(var(--food))';
+    ctx.shadowColor = foodGlow;
+    ctx.fillStyle = foodColor;
     ctx.fillRect(
       food.x * cellSize + 2,
       food.y * cellSize + 2,
@@ -49,10 +58,11 @@ export function GameBoard({ gameState, cellSize = 20 }: GameBoardProps) {
 
     // Draw snake with glow
     ctx.shadowBlur = 10;
-    ctx.shadowColor = 'hsl(var(--snake-glow))';
+    ctx.shadowColor = snakeGlow;
     gameState.snake.forEach((segment: Position, index: number) => {
       const opacity = 1 - (index / gameState.snake.length) * 0.3;
-      ctx.fillStyle = `hsl(var(--snake-body) / ${opacity})`;
+      const snakeBodyHSL = styles.getPropertyValue('--snake-body').trim();
+      ctx.fillStyle = `hsl(${snakeBodyHSL} / ${opacity})`;
       ctx.fillRect(
         segment.x * cellSize + 1,
         segment.y * cellSize + 1,
